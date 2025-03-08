@@ -1,4 +1,5 @@
-import {User} from "../models/user.model.js";
+import { User } from "../models/user.models.js";
+import bcrypt from "bcryptjs";
 import { createToken } from "../utils/token.js";
 
 export const createUser = async (req, res) => {
@@ -6,7 +7,8 @@ export const createUser = async (req, res) => {
     if (!(name && email && password && role)) {
         return res.status(400).json({ message: "Please fill all the fields" });
     }
-    if (User.find({ email })) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
         return res.status(400).json({ message: "Email already exists" });
     }
     try {
@@ -16,6 +18,7 @@ export const createUser = async (req, res) => {
         const token = createToken(user);
         return res.status(201).json({ message: "User created successfully", user, token });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ message: "Error creating user" });
     }
 };
