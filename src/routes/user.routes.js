@@ -5,14 +5,22 @@ import {
     getUserById,
     updateUser,
     deleteUser,
+    loginUser,
+    logoutUser,
 } from "../controllers/user.controller.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
+// Public routes
 router.post("/register", createUser);
-router.get("/", getAllUsers);
-router.get("/:id", getUserById);
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+router.post("/login", loginUser);
+
+// Protected routes
+router.get("/", authMiddleware, getAllUsers);
+router.get("/:id", authMiddleware, getUserById);
+router.put("/:id", authMiddleware, updateUser);
+router.delete("/:id", authMiddleware, deleteUser);
+router.post("/logout", authMiddleware, logoutUser);
 
 export default router;

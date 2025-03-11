@@ -1,4 +1,4 @@
-import express from "express";
+import {Router} from "express";
 import {
     createProduct,
     getAllProducts,
@@ -6,13 +6,16 @@ import {
     updateProduct,
     deleteProduct,
 } from "../controllers/product.controller.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
-const router = express.Router();
+const router = Router();
 
-router.post("/add", createProduct);
-router.get("/", getAllProducts);
-router.get("/:id", getProductById);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+
+// Protected routes
+router.get("/", authMiddleware, getAllProducts);
+router.get("/:id", authMiddleware, getProductById);
+router.post("/add", authMiddleware, createProduct);
+router.put("/:id", authMiddleware, updateProduct);
+router.delete("/:id", authMiddleware, deleteProduct);
 
 export default router;

@@ -16,7 +16,10 @@ export const createUser = async (req, res) => {
         const user = await User.create({ name, email, password: hashedPassword, role });
         user.password = undefined;
         const token = createToken(user);
-        return res.status(201).json({ message: "User created successfully", user, token });
+        
+        res.cookie("token", token);
+        
+        return res.status(201).json({ message: "User created successfully", user });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Error creating user" });
@@ -33,14 +36,29 @@ export const loginUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const isPasswordMatch = bcrypt.compare(password, user.password);
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
+        
+        user.password = undefined;
         const token = createToken(user);
-        return res.status(200).json({ message: "Login successful", token });
+        
+        res.cookie("token", token);
+        
+        return res.status(200).json({ message: "Login successful", user });
     } catch (error) {
         return res.status(500).json({ message: "Error logging in user" });
+    }
+};
+
+export const logoutUser = async (req, res) => {
+    try {
+        res.cookie("token", "");
+        
+        return res.status(200).json({ message: "Logout successful" });
+    } catch (error) {
+        return res.status(500).json({ message: "Error logging out user" });
     }
 };
 
